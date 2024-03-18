@@ -15,3 +15,6 @@
 3. Check your folder for a new html file(that is created by the above step).
    
 4. Open the html file in your browser
+
+## Plan
+
