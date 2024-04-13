@@ -22,15 +22,15 @@
         <div class="container detail-container">
             <div class="row">
                 <div class="col">
-                    <div class="row  v-nums">400</div>
-                    <div class="row v-name">Total Junctions</div>
+                    <div class="row  v-nums" id="v-nums">4</div>
+                    <div class="row v-name">Total Nodes</div>
                     <div class="col map">
 
                     </div>
                 </div>
                 <div class="col">
-                    <div class="row v-nums">120</div>
-                    <div class="row v-name">Total Vehicles</div>
+                    <div class="row v-nums" id="v-nums-vehicles">120</div>
+                    <div class="row v-name" >Total Vehicles</div>
                 </div>
                 <div class="col">
                     <div class="row v-nums">200</div>
@@ -38,11 +38,11 @@
                 </div>
                 <div class="col">
                     <div class="row v-nums">109</div>
-                    <div class="row v-name">Cars</div>
+                    <div class="row v-name">Pot holes</div>
                 </div>
                 <div class="col">
                     <div class="row v-nums">30</div>
-                    <div class="row v-name">Auto Rickshaw</div>
+                    <div class="row v-name">Parked Vehicles</div>
                 </div>
                 <div class="col">
                     <div class="row v-nums">10</div>
@@ -85,9 +85,12 @@
                 .setLatLng(e.latitude, e.longitude);
 
                 m.bindPopup(p);
+                m.on('click', function() {
+                fetchEvents(e.id); // Pass the node ID to fetch events
+            });
         });
 
-        marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+        // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
 
         //console.log(result);
         
@@ -147,6 +150,40 @@
         //     }
 
         //     marker2.on('click', onclick);
+        function fetchEvents(nodeId) {
+            fetch(`/events/${nodeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the tableContainer with the received data
+                    var eventsHtml = '<table class="table">';
+                    eventsHtml += '<thead><tr><th>Event ID</th><th>Type</th><th>Start Time</th><th>End Time</th></tr></thead>';
+                    eventsHtml += '<tbody>';
+                    data.forEach(event => {
+                        eventsHtml += `<tr><td>${event.id}</td><td>${event.type}</td><td>${event.start_time}</td><td>${event.end_time || ''}</td></tr>`;
+                    });
+                    eventsHtml += '</tbody></table>';
+                    document.getElementById('tableContainer').innerHTML = eventsHtml;
+                })
+                .catch(error => console.error('Error fetching events:', error));
+        }
+
+    function fetchDataAndUpdate() {
+        console.log("Here")
+        fetch('/data') 
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('#v-nums').innerText = data.totalNodes;
+                document.querySelector('#v-nums-vehicles').innerText = data.totalVehicles;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+            console.log(data);
+    }
+
+    fetchDataAndUpdate();
+
+    setInterval(fetchDataAndUpdate, 5000); 
+
+
     </script>
 </body>
 
