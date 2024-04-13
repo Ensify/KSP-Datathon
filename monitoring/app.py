@@ -31,6 +31,7 @@ class Alert:
         self.alert_time = datetime.now()
 
 
+
 @app.route("/")
 def home():
     result = node_collection.find({})
@@ -66,12 +67,23 @@ def get_alerts():
 def get_data():
    
     total_nodes = node_collection.count_documents({})
-    total_vehicles = instance_collection.count_documents({})
+    # total_vehicles = instance_collection.count_documents({})
+    total_instances = instance_collection.find({})
+    total_vehicles, total_potholes, total_parked_vehicles, total_people_count = 0,0,0,0
+    for inst in total_instances:
+        total_vehicles += inst['vehicle_count']
+        total_potholes += inst['pot_hole_count']
+        total_parked_vehicles += inst['parked_vehicle_count']
+        total_people_count += inst['people_count']
+
 
    
     data = {
         'totalNodes': total_nodes,
         'totalVehicles': total_vehicles,
+        'totalPotholes': total_potholes,
+        'parkedVehicles': total_parked_vehicles,
+        'peopleCount': total_people_count
     }
     print(data)
     return jsonify(data)
@@ -84,10 +96,22 @@ def get_events(node_id):
     result = [{**event, '_id': str(event['_id'])} for event in result]
 
     print(result)
+
     return jsonify(result)
 
 
-def create_or_update_alert(event_id, node_id, start_time):
+@app.route('/instances/<int:node_id>', methods=['GET'])
+def get_instances(node_id):
+    result = instance_collection.find({"node_id": node_id})
+    result = list(result)
+    result = [{**instance, '_id': str(instance['_id'])} for instance in result]
+
+    print(result)
+
+    return jsonify(result)
+
+
+def create_or_update_alert(event_id, node_id, start_time): 
     existing_alert = alert_collection.find_one({"event_id": event_id})
     
     if existing_alert:

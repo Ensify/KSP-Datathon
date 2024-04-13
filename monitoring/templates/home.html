@@ -33,24 +33,24 @@
                     <div class="row v-name" >Total Vehicles</div>
                 </div>
                 <div class="col">
-                    <div class="row v-nums">200</div>
-                    <div class="row v-name">Bikes</div>
-                </div>
-                <div class="col">
-                    <div class="row v-nums">109</div>
+                    <div class="row v-nums" id="v-nums-potholes">200</div>
                     <div class="row v-name">Pot holes</div>
                 </div>
+                <!-- <div class="col">
+                    <div class="row v-nums">109</div>
+                    <div class="row v-name">Pot holes</div>
+                </div> -->
                 <div class="col">
-                    <div class="row v-nums">30</div>
+                    <div class="row v-nums" id="v-nums-parked">30</div>
                     <div class="row v-name">Parked Vehicles</div>
                 </div>
-                <div class="col">
+                <!-- <div class="col">
                     <div class="row v-nums">10</div>
                     <div class="row v-name">Trucks</div>
-                </div>
+                </div> -->
                 <div class="col">
-                    <div class="row v-nums">160</div>
-                    <div class="row v-name">Persons</div>
+                    <div class="row v-nums" id="v-nums-people">160</div>
+                    <div class="row v-name">People</div>
                 </div>
             </div>
         </div>
@@ -59,10 +59,12 @@
             <div class="row">
                 <div id="map"></div>
                 <div class="col">
-                    <div id="tableContainer"></div> 
+                    <div id="instanceTableContainer"></div> 
+                    <div id="eventTableContainer"></div> 
                 </div>
             </div>
         </div>
+
     </div>
     <div class="container alert-container">
         <h3>Alerts</h3>
@@ -163,6 +165,7 @@
 
         //     marker2.on('click', onclick);
         function fetchEvents(nodeId) {
+            fetchInstance(nodeId);
             fetch(`/events/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -174,11 +177,28 @@
                         eventsHtml += `<tr><td>${event.id}</td><td>${event.type}</td><td>${event.start_time}</td><td>${event.end_time || ''}</td><td>${event.alerts_raised}</td></tr>`;
                     });
                     eventsHtml += '</tbody></table>';
-                    document.getElementById('tableContainer').innerHTML = eventsHtml;
+                    document.getElementById('eventTableContainer').innerHTML = eventsHtml;
                 })
                 .catch(error => console.error('Error fetching events:', error));
         }
-        
+
+        function fetchInstance(nodeId) {
+            fetch(`/instances/${nodeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    
+                    var instanceHtml = '<table class="table">';
+                    instanceHtml += '<thead><tr><th>Time Stamp</th><th>Vechicle Count</th><th>Pot Hole Count</th><th>Parked Vehicle Count</th><th>People Count</th></tr></thead>';
+                    instanceHtml += '<tbody>';
+                    data.forEach(instance => {
+                        instanceHtml += `<tr><td>${instance.time_stamp}</td><td>${instance.vehicle_count}</td><td>${instance.pot_hole_count}</td><td>${instance.parked_vehicle_count || ''}</td><td>${instance.people_count}</td></tr>`;
+                    });
+                    instanceHtml += '</tbody></table>';
+                    document.getElementById('instanceTableContainer').innerHTML = instanceHtml;
+                })
+                .catch(error => console.error('Error fetching Instances:', error));
+        }
+
     function fetchDataAndUpdate() {
         console.log("Here")
         fetch('/data') 
@@ -186,6 +206,11 @@
             .then(data => {
                 document.querySelector('#v-nums').innerText = data.totalNodes;
                 document.querySelector('#v-nums-vehicles').innerText = data.totalVehicles;
+                document.querySelector('#v-nums-potholes').innerText = data.totalPotholes;
+                document.querySelector('#v-nums-parked').innerText = data.parkedVehicles;
+                document.querySelector('#v-nums-people').innerText = data.peopleCount;
+
+
             })
             .catch(error => console.error('Error fetching data:', error));
             
