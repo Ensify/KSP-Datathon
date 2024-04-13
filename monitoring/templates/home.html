@@ -64,6 +64,18 @@
             </div>
         </div>
     </div>
+    <div class="container alert-container">
+        <h3>Alerts</h3>
+        <table>
+            <tr>
+                <th>Event Id</th>
+                <th>Node Id</th>
+                <th>Start Time</th>
+                <th>Alert Time</th>
+            </tr>
+            <tbody id="alertList"></tbody> 
+        </table>
+    </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -154,19 +166,19 @@
             fetch(`/events/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
-                    // Update the tableContainer with the received data
+                    
                     var eventsHtml = '<table class="table">';
-                    eventsHtml += '<thead><tr><th>Event ID</th><th>Type</th><th>Start Time</th><th>End Time</th></tr></thead>';
+                    eventsHtml += '<thead><tr><th>Event ID</th><th>Type</th><th>Start Time</th><th>End Time</th><th>Alerts</th></tr></thead>';
                     eventsHtml += '<tbody>';
                     data.forEach(event => {
-                        eventsHtml += `<tr><td>${event.id}</td><td>${event.type}</td><td>${event.start_time}</td><td>${event.end_time || ''}</td></tr>`;
+                        eventsHtml += `<tr><td>${event.id}</td><td>${event.type}</td><td>${event.start_time}</td><td>${event.end_time || ''}</td><td>${event.alerts_raised}</td></tr>`;
                     });
                     eventsHtml += '</tbody></table>';
                     document.getElementById('tableContainer').innerHTML = eventsHtml;
                 })
                 .catch(error => console.error('Error fetching events:', error));
         }
-
+        
     function fetchDataAndUpdate() {
         console.log("Here")
         fetch('/data') 
@@ -176,14 +188,35 @@
                 document.querySelector('#v-nums-vehicles').innerText = data.totalVehicles;
             })
             .catch(error => console.error('Error fetching data:', error));
-            console.log(data);
+            
     }
 
     fetchDataAndUpdate();
 
-    setInterval(fetchDataAndUpdate, 5000); 
+    function updateAlertsList(alert) {
+    var alertList = document.getElementById('alertList');
+    var alertRow = document.createElement('tr');
+    alertRow.innerHTML = `<td>${alert.eventId}</td>
+                          <td>${alert.nodeId}</td>
+                          <td>${alert.startTime}</td>
+                          <td>${alert.alertTime}</td>`;
+    alertList.appendChild(alertRow); 
+}
+function fetchAlerts() {
+    fetch('/alerts')
+        .then(response => response.json())
+        .then(data => {
+            var alertList = document.getElementById('alertList');
+            alertList.innerHTML = ''; 
+            data.forEach(alert => {
+                updateAlertsList(alert);
+            });
+        })
+        .catch(error => console.error('Error fetching alerts:', error));
+}
 
-
+        fetchAlerts();
+        setInterval(fetchAlerts, 60000); 
     </script>
 </body>
 
