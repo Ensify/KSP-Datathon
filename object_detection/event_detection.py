@@ -51,6 +51,7 @@ class Vehicle(BaseModel):
     truck_count: int = Field(...)
     bike_count: int = Field(...)
     car_count: int = Field(...)
+    people_count: int = Field(...)
 
 TOLERANCE_INTERVAL = {
     'car': 10 * 60,
@@ -121,7 +122,7 @@ class Detector:
         return (x_mid, y_mid)
 
     def raise_event(self, class_name, start, end):
-        event = Event(node_id=self.node_id, type=class_name, start_time=start, end_time=end, alerts_raised=0)
+        event = Event(node_id=self.node_id, type=class_name, start_time=start, alerts_raised=0)
         event_collection.insert_one(event.dict())
 
 
@@ -132,7 +133,7 @@ class Detector:
         instance = InstanceInformation(node_id=self.node_id, time_stamp=datetime.now(), vehicle_count=total_vehicles,pot_hole_count=0, parked_vehicle_count=total_vehicles, people_count= state.get('person'))
         instance_collection.insert_one(instance.dict())
 
-        vehicle = Vehicle(node_id=self.node_id, time_stamp=datetime.now(), auto_count=state.get('auto', 0), truck_count=state.get('truck',0), bike_count=state.get('bike', 0), car_count=state.get('car',0))
+        vehicle = Vehicle(node_id=self.node_id, time_stamp=datetime.now(), auto_count=state.get('auto', 0), truck_count=state.get('truck',0), bike_count=state.get('bike', 0), car_count=state.get('car',0), people_count=state.get('person', 0))
         vehicle_collection.insert_one(vehicle.dict())
 
 

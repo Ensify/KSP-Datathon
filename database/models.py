@@ -42,9 +42,11 @@ class Vehicle(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     node_id: int = Field(...)
     time_stamp: datetime = Field(...)
-    auto_count: int = Field(...)
-    truck_count: int = Field(...)
-    bike_count: int = Field(...)
+    auto_count: Optional[int] = Field(default=0)  
+    truck_count: Optional[int] = Field(default=0)  
+    bike_count: Optional[int] = Field(default=0)  
+    car_count: Optional[int] = Field(default=0)  
+    people_count: Optional[int] = Field(default=0)
 
 
 class NodeConnection(BaseModel):
