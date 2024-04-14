@@ -1,5 +1,5 @@
 from flask import Flask,render_template, jsonify
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -19,6 +19,8 @@ node_collection = db['nodes']
 event_collection = db['events']
 instance_collection = db['instances']
 alert_collection = db['alerts']
+vehicle_collection = db['vehicles']
+
 
 app = Flask(__name__)
 
@@ -54,8 +56,9 @@ def get_alerts():
     check_events_for_alerts()
     alerts = list(alert_collection.find({}))
     alerts = [{
-        'eventId': alert['event_id'],
-        'nodeId': alert['node_id'],
+        'eventType': event_collection.find_one({'id':alert['event_id']})['type'],
+        'alerts': event_collection.find_one({'id':alert['event_id']})['alerts_raised'],
+        'nodeId': node_collection.find_one({'id':alert['node_id']})['name'],
         'startTime': alert['start_time'],
         'alertTime': alert['alert_time']
     } for alert in alerts]
@@ -89,13 +92,29 @@ def get_data():
     return jsonify(data)
 
 
+@app.route('/node/<int:node_id>')
+def get_node_data(node_id):
+    latest_vehicle = vehicle_collection.find_one({"node_id": node_id}, sort=[("time_stamp", DESCENDING)])
+    print(latest_vehicle)
+    if latest_vehicle:
+        latest_vehicle['_id'] = str(latest_vehicle['_id'])
+        if not latest_vehicle.get('car_count'):
+            latest_vehicle['car_count'] = 0
+        if not latest_vehicle.get('people_count'):
+            latest_vehicle['people_count'] = 0
+    latest_vehicle.update({
+        "node_name": node_collection.find_one({"id": node_id})['name']
+    })
+    return jsonify(latest_vehicle)
+
+
+
+
 @app.route('/events/<int:node_id>', methods=['GET'])
 def get_events(node_id):
     result = event_collection.find({"node_id": node_id})
     result = list(result)
     result = [{**event, '_id': str(event['_id'])} for event in result]
-
-    print(result)
 
     return jsonify(result)
 
@@ -106,7 +125,7 @@ def get_instances(node_id):
     result = list(result)
     result = [{**instance, '_id': str(instance['_id'])} for instance in result]
 
-    print(result)
+
 
     return jsonify(result)
 
