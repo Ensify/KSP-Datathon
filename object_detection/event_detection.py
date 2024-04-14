@@ -1,5 +1,55 @@
+
 from ultralytics import YOLO
 from datetime import datetime
+
+from dotenv import load_dotenv
+from pymongo import MongoClient
+import os
+from typing import Annotated, Optional
+from pydantic import BaseModel, BeforeValidator, Field
+from datetime import datetime
+
+PyObjectId = Annotated[str, BeforeValidator(str)]
+
+
+
+load_dotenv()
+client = MongoClient(os.environ.get('MONGO_URI'))
+
+db = client['ksp-traffic']
+event_collection = db['events']
+instance_collection = db['instances']
+vehicle_collection = db['vehicles']
+
+
+class Event(BaseModel):
+    """
+    Container for a single event
+    """
+    id: Optional[PyObjectId] = Field(...)
+    node_id: int = Field(...)
+    type: str = Field(...)
+    start_time: datetime = Field(...)
+    end_time: Optional[datetime] = Field(default=None)
+    alerts_raised: int = Field(...)
+
+class InstanceInformation(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    node_id: int = Field(...)
+    time_stamp: datetime = Field(...)
+    vehicle_count: int = Field(...)
+    pot_hole_count: int = Field(...)
+    parked_vehicle_count: int = Field(...)
+    people_count: int = Field(...)
+    
+    
+class Vehicle(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    node_id: int = Field(...)
+    time_stamp: datetime = Field(...)
+    auto_count: int = Field(...)
+    truck_count: int = Field(...)
+    bike_count: int = Field(...)
 
 TOLERANCE_INTERVAL = {
     'car': 10 * 60,
@@ -70,10 +120,20 @@ class Detector:
         return (x_mid, y_mid)
 
     def raise_event(self, class_name, start, end):
-        print('raise event')
+        event = Event(id=1, node_id=self.node_id, type=class_name, start_time=start, end_time=end, alerts_raised=0)
+        event_collection.insert_one(event.dict())
+
+
 
     def update_instance_state(self, state):
         print(state)
+        total_vehicles = state.get('auto', 0)+state.get('truck', 0)+state.get('bike', 0)
+        instance = InstanceInformation(node_id=self.node_id, time_stamp=datetime.now(), vehicle_count=total_vehicles,pot_hole_count=0, parked_vehicle_count=total_vehicles, people_count= state.get('person'))
+        instance_collection.insert_one(instance.dict())
+
+        vehicle = Vehicle(node_id=self.node_id, time_stamp=datetime.now(), auto_count=state.get('auto', 0), truck_count=state.get('truck',0), bike_count=state.get('bike', 0))
+        vehicle_collection.insert_one(vehicle.dict())
+
 
 
 if __name__ == '__main__':

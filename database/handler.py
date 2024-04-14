@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 import math
-from models import MapNode, NodeConnection, Event
+from models import MapNode, NodeConnection, Event, InstanceInformation
 from datetime import datetime
 from bson import ObjectId
 from pydantic import BaseModel, Field
@@ -112,8 +112,29 @@ def insert_dummy_events():
         print(event_dict)
 
 
+def insert_dummy_instance():
+    dummy_instance = [
+        InstanceInformation(id=1, node_id=1, time_stamp=datetime(2024, 4, 13, 21, 15), vehicle_count=2, pot_hole_count=1, parked_vehicle_count=2, people_count=15),
+        InstanceInformation(id=2, node_id=1, time_stamp=datetime(2024, 4, 13, 23, 15), vehicle_count=5, pot_hole_count=1, parked_vehicle_count=3, people_count=10),
+        InstanceInformation(id=3, node_id=2, time_stamp=datetime(2024, 4, 13, 22, 15), vehicle_count=2, pot_hole_count=1, parked_vehicle_count=2, people_count=18),
+        InstanceInformation(id=4, node_id=2, time_stamp=datetime(2024, 4, 13, 22, 50), vehicle_count=6, pot_hole_count=1, parked_vehicle_count=2, people_count=15),
+        InstanceInformation(id=5, node_id=3, time_stamp=datetime(2024, 4, 13, 23, 15), vehicle_count=4, pot_hole_count=2, parked_vehicle_count=2, people_count=14),
+        InstanceInformation(id=7, node_id=3, time_stamp=datetime(2024, 4, 13, 23, 55), vehicle_count=9, pot_hole_count=2, parked_vehicle_count=2, people_count=22),
+        InstanceInformation(id=8, node_id=4, time_stamp=datetime(2024, 4, 13, 21, 15), vehicle_count=13, pot_hole_count=1, parked_vehicle_count=2, people_count=39),
+        InstanceInformation(id=9, node_id=5, time_stamp=datetime(2024, 4, 13, 21, 15), vehicle_count=19, pot_hole_count=1, parked_vehicle_count=2, people_count=15),
+        InstanceInformation(id=10, node_id=6, time_stamp=datetime(2024, 4, 13, 21, 15), vehicle_count=24, pot_hole_count=1, parked_vehicle_count=2, people_count=15),
+        InstanceInformation(id=11, node_id=7, time_stamp=datetime(2024, 4, 13, 21, 15), vehicle_count=26, pot_hole_count=1, parked_vehicle_count=2, people_count=14)
+
+    ]
+    for instance in dummy_instance:
+        instance_dict = instance.dict()
+        instance_collection.insert_one(instance_dict)
+        print(instance_dict)
+
+
 if __name__ == "__main__":
     # add_nodes()
     # add_edges()
-    insert_dummy_events()
+    # insert_dummy_events()
+    insert_dummy_instance()
     pass

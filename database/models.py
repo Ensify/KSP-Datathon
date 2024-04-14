@@ -38,6 +38,14 @@ class InstanceInformation(BaseModel):
     parked_vehicle_count: int = Field(...)
     people_count: int = Field(...)
     
+class Vehicle(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    node_id: int = Field(...)
+    time_stamp: datetime = Field(...)
+    auto_count: int = Field(...)
+    truck_count: int = Field(...)
+    bike_count: int = Field(...)
+
 
 class NodeConnection(BaseModel):
     id: Optional[int] = Field(default=None)
@@ -45,3 +53,9 @@ class NodeConnection(BaseModel):
     dest_id: int = Field(...)
     distance: float = Field(...)
 
+class Alert:
+    def __init__(self, event_id, node_id, start_time):
+        self.event_id = event_id
+        self.node_id = node_id
+        self.start_time = start_time
+        self.alert_time = datetime.now()
