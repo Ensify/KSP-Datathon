@@ -121,7 +121,7 @@ def get_events(node_id):
 
 @app.route('/instances/<int:node_id>', methods=['GET'])
 def get_instances(node_id):
-    result = instance_collection.find({"node_id": node_id})
+    result = instance_collection.find({"node_id": node_id}, sort=[("time_stamp", DESCENDING)])
     result = list(result)
     result = [{**instance, '_id': str(instance['_id'])} for instance in result]
 
