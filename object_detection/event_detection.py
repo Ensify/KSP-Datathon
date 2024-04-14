@@ -6,6 +6,7 @@ TOLERANCE_INTERVAL = {
     'auto': 5 * 60,
     'pothole': 10
 }
+
 DISPLACEMENT_TOLERANCE = 10
 
 UPDATE_INTERVAL = 100
@@ -30,8 +31,11 @@ class Detector:
                 class_name = result.names[int(cls[idx].item())]
                 if id in self.object_states:
                     if self.time_detla(id) > TOLERANCE_INTERVAL.get(class_name, 10):
-                        if self.distance_detla(self.object_states[id]['mid'], self.get_center_from_xyxy(xyxy[idx].numpy())) < DISPLACEMENT_TOLERANCE:
+                        mid = self.get_center_from_xyxy(xyxy[idx].numpy())
+                        if self.distance_detla(self.object_states[id]['mid'], mid) < DISPLACEMENT_TOLERANCE:
                             self.raise_event(class_name, self.object_states[id]['begin_time'], datetime.now())
+                        self.object_states[id]['mid'] = mid
+
 
                 else:
                     self.object_states[id] = {
@@ -74,4 +78,4 @@ class Detector:
 
 if __name__ == '__main__':
     detector = Detector(model=r"models\last.pt", node_id= 1)
-    detector.main_loop(video=r'test_data\Traffic Flow Optiomization and Congestion Management\Problem Statement - 3\Russel_Market_Entrance_PTZ_1.mp4q')
+    detector.main_loop(video=r'test_data\Traffic Flow Optiomization and Congestion Management\Problem Statement - 3\Russel_Market_Entrance_PTZ_1.mp4')
