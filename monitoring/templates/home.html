@@ -114,7 +114,9 @@
                     
                 </div>
                 <div class="col">
-                    <div id="instanceTableContainer" style="max-height: 300px; overflow-y: scroll;"></div>
+                    <h4>Instance Table</h4>
+                    <div id="instanceTableContainer" style="max-height: 320px; overflow-y: scroll;"></div>
+                    <h4>Event Table</h4>
                     <div id="eventTableContainer"style="max-height: 300px; overflow-y: scroll;"></div>
                 </div>
                 <div class="row">
@@ -199,10 +201,10 @@
                 .then(data => {
                     
                     var eventsHtml = '<table class="table table-striped">';
-                    eventsHtml += '<thead><tr><th>Type</th><th>Start Time</th><th>Alerts</th></tr></thead>';
+                    eventsHtml += '<thead><tr><th>Type</th><th>Start Time</th><th>End Time</th><th>Alerts</th></tr></thead>';
                     eventsHtml += '<tbody>';
                     data.forEach(event => {
-                        eventsHtml += `<tr><td>${event.type}</td><td>${event.start_time}</td><td>${event.alerts_raised}</td></tr>`;
+                        eventsHtml += `<tr><td>${event.type}</td><td>${event.start_time}</td><td>${event.end_time}</td><td>${event.alerts_raised}</td></tr>`;
                     });
                     eventsHtml += '</tbody></table>';
                     document.getElementById('eventTableContainer').innerHTML = eventsHtml;
