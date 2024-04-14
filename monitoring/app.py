@@ -102,9 +102,10 @@ def get_node_data(node_id):
             latest_vehicle['car_count'] = 0
         if not latest_vehicle.get('people_count'):
             latest_vehicle['people_count'] = 0
-    latest_vehicle.update({
-        "node_name": node_collection.find_one({"id": node_id})['name']
-    })
+    if latest_vehicle:
+        latest_vehicle.update({
+            "node_name": node_collection.find_one({"id": node_id})['name']
+        })
     return jsonify(latest_vehicle)
 
 
