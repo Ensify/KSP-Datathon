@@ -28,7 +28,7 @@ class Event(BaseModel):
     start_time: datetime = Field(...)
     end_time: Optional[datetime] = Field(default=None)
     alerts_raised: int = Field(...)
-
+    
 class InstanceInformation(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     node_id: int = Field(...)
@@ -61,3 +61,4 @@ class Alert:
         self.node_id = node_id
         self.start_time = start_time
         self.alert_time = datetime.now()
+        
