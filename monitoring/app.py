@@ -2,14 +2,13 @@ from flask import Flask,render_template, jsonify, request
 from pymongo import MongoClient, DESCENDING
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
-import requests
 
 from bson import ObjectId
 import os, json
 # from database.models import Alert
 from datetime import datetime, timedelta
 import plotly.graph_objs as go
-
+import requests
 
 load_dotenv()
 client = MongoClient(os.environ.get('MONGO_URI'))
@@ -238,13 +237,16 @@ def create_or_update_alert(event_id, node_id, start_time):
 def check_events_for_alerts():
     # return 
     events = event_collection.find({"end_time": None})
-
     for event in events[:20]:
+        alert_last = alert_collection.find_one({"event_id": event["id"]})
+
+        last_alert_time = alert_last["alert_time"]
         start_time = event['start_time']
+
         alerts_raised = event['alerts_raised']
         current_time = datetime.now()
         
-        duration = current_time - start_time
+        duration = current_time - last_alert_time
         
         delta = min(4, alerts_raised)
 
@@ -269,9 +271,11 @@ def get_user_report():
         except Exception as e:
             print(e)
             address = "Unknown"
-        # report_collection.insert_one({"timestamp":datetime.now(), "type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
+        report_collection.insert_one({"timestamp":datetime.now(), "type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
     print("Done")
     return "Success"
+
+
 scheduler.add_job(check_events_for_alerts, 'interval', minutes=6)
 scheduler.start()
 
