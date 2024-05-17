@@ -47,7 +47,7 @@ def home():
             'address': i['address'],
         })
 
-    return render_template('home.html', result=results)
+    return render_template('index.html', result=results)
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
