@@ -20,7 +20,7 @@ event_collection = db['events']
 instance_collection = db['instances']
 alert_collection = db['alerts']
 vehicle_collection = db['vehicles']
-
+report_collection = db["reports"]
 
 app = Flask(__name__)
 
@@ -251,6 +251,20 @@ def check_events_for_alerts():
             print(f"Alert: Event duration exceeded {delta*15} minutes")
             create_or_update_alert(event["id"], event["node_id"], event["start_time"])
             event_collection.update_one({"id": event["id"]}, {"$inc": {"alerts_raised": 1}})
+
+@app.route("/report")
+def get_user_report():
+    if request.method == "POST":
+        type = request.form.get("type")
+        description = request.form.get("description")
+        longitude = request.form.get("longitude").strip()
+        latitude = request.form.get("latitude").strip()
+        GEO_API_KEY = os.environ.get("GEO_API_KEY").strip()
+        
+        response = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={GEO_API_KEY}"
+        address = response["display_name"]
+
+        report_collection.insert_one({"type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
 
 
 scheduler.add_job(check_events_for_alerts, 'interval', minutes=6)
