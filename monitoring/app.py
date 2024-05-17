@@ -260,13 +260,15 @@ def get_user_report():
         longitude = request.form.get("longitude").strip()
         latitude = request.form.get("latitude").strip()
         GEO_API_KEY = os.environ.get("GEO_API_KEY").strip()
-        
-        response = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={GEO_API_KEY}"
-        address = response["display_name"]
-
+        try:
+            response = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={GEO_API_KEY}"
+            address = response["display_name"]
+        except Exception as e:
+            print(e)
+            address = "Unknown"
         report_collection.insert_one({"type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
 
-
+    return "Success"
 scheduler.add_job(check_events_for_alerts, 'interval', minutes=6)
 scheduler.start()
 
