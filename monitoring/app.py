@@ -2,6 +2,7 @@ from flask import Flask,render_template, jsonify, request
 from pymongo import MongoClient, DESCENDING
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
+import requests
 
 from bson import ObjectId
 import os, json
@@ -252,26 +253,28 @@ def check_events_for_alerts():
             create_or_update_alert(event["id"], event["node_id"], event["start_time"])
             event_collection.update_one({"id": event["id"]}, {"$inc": {"alerts_raised": 1}})
 
-@app.route("/report")
+@app.route("/report", methods=["POST"])
 def get_user_report():
     if request.method == "POST":
-        type = request.form.get("type")
-        description = request.form.get("description")
-        longitude = request.form.get("longitude").strip()
-        latitude = request.form.get("latitude").strip()
+        request_json = request.get_json()
+        type = request_json.get("type")
+        description = request_json.get("description")
+        longitude = request_json.get("longitude").strip()
+        latitude = request_json.get("latitude").strip()
         GEO_API_KEY = os.environ.get("GEO_API_KEY").strip()
         try:
-            response = f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={GEO_API_KEY}"
+            response = requests.get(f"https://geocode.maps.co/reverse?lat={latitude}&lon={longitude}&api_key={GEO_API_KEY}")
+            response = response.json()
             address = response["display_name"]
         except Exception as e:
             print(e)
             address = "Unknown"
-        report_collection.insert_one({"type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
-
+        # report_collection.insert_one({"timestamp":datetime.now(), "type": type, "description": description, "longitude": longitude, "latitude": latitude, "address": address})
+    print("Done")
     return "Success"
 scheduler.add_job(check_events_for_alerts, 'interval', minutes=6)
 scheduler.start()
 
 
 if __name__ == "__main__":
-    app.run(host='localhost',port=5000,debug=True)
+    app.run(host='0.0.0.0',port=5000,debug=True)
