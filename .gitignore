@@ -166,3 +166,5 @@ models/
 test_data/
 .env
 alert.py
+runs/
+videos/
