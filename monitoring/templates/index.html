@@ -285,9 +285,13 @@
                             <button class="nav-link tab-btn" id="nav-profile-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile"
                                 aria-selected="false"><span class="table-menu">Events</span></button>
+                            <button class="nav-link tab-btn" id="nav-active-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-active" type="button" role="tab" aria-controls="nav-contact"
+                                aria-selected="false"><span class="table-menu">Active Alerts</span></button>
                             <button class="nav-link tab-btn" id="nav-contact-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact"
                                 aria-selected="false"><span class="table-menu">Alerts</span></button>
+
                             <!-- <button class="nav-link" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-disabled" type="button" role="tab" aria-controls="nav-disabled" aria-selected="false" disabled>Disabled</button> -->
                         </div>
                     </nav>
@@ -298,6 +302,11 @@
                             select a marker to view the data
                         </div>
                         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"
+                            tabindex="0">
+                            <!-- <div id="eventTableContainer"></div> -->
+                            select a marker to view the data
+                        </div>
+                        <div class="tab-pane fade" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab"
                             tabindex="0">
                             <!-- <div id="eventTableContainer"></div> -->
                             select a marker to view the data
@@ -319,6 +328,7 @@
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
 
@@ -442,6 +452,7 @@
         function fetchEvents(nodeId) {
             fetchInstance(nodeId);
             fetchNodeData(nodeId);
+            fetchActiveAlerts(nodeId);
             fetch(`/events/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -475,6 +486,41 @@
                 .catch(error => console.error('Error fetching Instances:', error));
         }
 
+        function fetchNodeData(nodeId) {
+            console.log("Here")
+            fetch(`/node/${nodeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('#n-auto').innerText = data.auto_count;
+                    document.querySelector('#n-truck').innerText = data.truck_count;
+                    document.querySelector('#n-people').innerText = data.people_count;
+                    document.querySelector('#n-bike').innerText = data.bike_count;
+                    document.querySelector('#n-car').innerText = data.car_count;
+                    document.querySelector('#n-name').innerText = data.node_name;
+
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+        }
+
+
+        function fetchActiveAlerts(nodeId) {
+            fetch(`/alerts/active/${nodeId}`)
+                .then(response => response.json())
+                .then(data => {
+
+                    var activeAlertsHtml = '<table class="table table-striped">';
+                    activeAlertsHtml += '<thead><tr><th>Start Time Stamp</th><th>Vechicle</th><th>Total Alerts</th></tr></thead>';
+                    activeAlertsHtml += '<tbody>';
+                    data.forEach(alert => {
+                        activeAlertsHtml += `<tr><td>${alert.start_time}</td><td>${alert.type}</td><td>${alert.alerts_raised}</td></tr>`;
+                    });
+                    activeAlertsHtml += '</tbody></table>';
+                    document.getElementById('nav-active').innerHTML = activeAlertsHtml;
+                })
+                .catch(error => console.error('Error fetching alerts:', error));
+        }
+
         function fetchDataAndUpdate() {
             console.log("Here")
             fetch('/data')
@@ -494,22 +540,6 @@
 
         fetchDataAndUpdate();
 
-        function fetchNodeData(nodeId) {
-            console.log("Here")
-            fetch(`/node/${nodeId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelector('#n-auto').innerText = data.auto_count;
-                    document.querySelector('#n-truck').innerText = data.truck_count;
-                    document.querySelector('#n-people').innerText = data.people_count;
-                    document.querySelector('#n-bike').innerText = data.bike_count;
-                    document.querySelector('#n-car').innerText = data.car_count;
-                    document.querySelector('#n-name').innerText = data.node_name;
-
-                })
-                .catch(error => console.error('Error fetching data:', error));
-
-        }
 
 
         function updateAlertsList(alert) {

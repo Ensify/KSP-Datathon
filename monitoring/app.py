@@ -69,6 +69,23 @@ def get_alerts():
     alerts = alerts[::-1]
     return jsonify(alerts)
 
+@app.route('/alerts/active')
+def get_active_alerts():
+    print("Alerts Triggered")
+    check_events_for_alerts()
+    alerts = list(alert_collection.find({}))
+    alerts = [{
+        'eventType': event_collection.find_one({'id':alert['event_id']})['type'],
+        'alerts': event_collection.find_one({'id':alert['event_id']})['alerts_raised'],
+        'nodeId': node_collection.find_one({'id':alert['node_id']})['name'],
+        'startTime': alert['start_time'],
+        'alertTime': alert['alert_time']
+    } for alert in alerts if alert["end_time"]==None]
+    alerts = alerts[::-1]
+    return jsonify(alerts)
+
+
+
 
 @app.route('/data')
 def get_data():
@@ -190,6 +207,22 @@ def get_instances(node_id):
     result = [{**instance, '_id': str(instance['_id'])} for instance in result]
     return jsonify(result)
 
+@app.route('/alerts/<int:node_id>', methods=['GET', 'POST'])
+def get_alerts_specific_node(node_id):
+    result = alert_collection.find({"node_id": node_id})
+    result = list(result)
+    result = [{**alert, '_id': str(alert['_id'])} for alert in result]
+    return jsonify(result)
+
+
+@app.route('/alerts/active/<int:node_id>', methods=['GET', 'POST'])
+def get_node_active_alerts(node_id):
+    result = event_collection.find({"node_id": node_id})
+
+    result = list(result)
+    result = [{**alert, '_id': str(alert['_id'])} for alert in result if alert["end_time"]==None]
+    return jsonify(result)
+
 
 def create_or_update_alert(event_id, node_id, start_time): 
     existing_alert = alert_collection.find_one({"event_id": event_id})
@@ -202,19 +235,20 @@ def create_or_update_alert(event_id, node_id, start_time):
 
 
 def check_events_for_alerts():
-    return 
+    # return 
     events = event_collection.find({"end_time": None})
 
     for event in events[:20]:
         start_time = event['start_time']
+        alerts_raised = event['alerts_raised']
         current_time = datetime.now()
         
- 
         duration = current_time - start_time
         
- 
-        if duration > timedelta(minutes=15):
-            print("Alert: Event duration exceeded 15 minutes")
+        delta = min(4, alerts_raised)
+
+        if delta!=0 and duration > timedelta(minutes=delta*15):
+            print(f"Alert: Event duration exceeded {delta*15} minutes")
             create_or_update_alert(event["id"], event["node_id"], event["start_time"])
             event_collection.update_one({"id": event["id"]}, {"$inc": {"alerts_raised": 1}})
 
