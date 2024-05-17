@@ -129,6 +129,19 @@
             width: 33%;
         }
 
+        .alertBtn {
+            z-index: 401;
+            top: 28%;
+            right: 5%;
+            background-color: #00ADB5;
+            border: none;
+        }
+
+        .alertBtn:hover {
+            background-color: #393E46;
+            color: #fff;
+        }
+
         .table-data {
             color: black !important;
         }
@@ -209,16 +222,31 @@
             background-color: #00ADB5;
         }
 
-        .w-95{
+        .w-95 {
             width: 95%;
         }
 
-        .active-menu{
+        .active-menu {
             border-left: 2px solid #00ADB5;
         }
 
-        .nav-item{
+        .nav-item {
             padding: 5px 0;
+        }
+
+        #alerts-side-table{
+            height : 100vh;
+            overflow: scroll;
+            width : 40%;
+        }
+
+        .alerts-table{
+            width : 35%;
+            margin : 0 auto;
+        }
+
+        .alert-title{
+            color : #00ADB5;
         }
     </style>
 </head>
@@ -250,10 +278,10 @@
                 </ul>
             </div>
         </nav>
-        <div class="map-view">
+        <div class="map-view" id="map-view">
             <div id="map">
                 <div
-                    class="dashboard position-absolute top-0 d-flex justify-content-between px-5 py-2 rounded shadow-lg">
+                    class="dashboard position-absolute top-0 d-flex justify-content-between px-5 py-2 rounded shadow-lg" id="dashboard">
                     <div class="d-flex flex-column align-items-center">
                         <p class="count" id="v-nums">123</p>
                         <p class="entity">Total nodes</p>
@@ -275,8 +303,14 @@
                         <p class="entity">People</p>
                     </div>
                 </div>
+                <button class="btn btn-primary alertBtn position-absolute" id="alert-btn">Alerts
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger visually-hidden" id="badge-text">
+                        99+
+                        <span class="visually-hidden">unread messages</span>
+                      </span>
+                </button>
                 <div
-                    class="table-content position-absolute d-flex justify-content-between px-3 py-2 rounded shadow-lg d-flex flex-column">
+                    class="table-content position-absolute d-flex justify-content-between px-3 py-2 rounded shadow-lg d-flex flex-column" id="table-content">
                     <nav class="w-95">
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="nav-link active tab-btn" id="nav-home-tab" data-bs-toggle="tab"
@@ -288,9 +322,6 @@
                             <button class="nav-link tab-btn" id="nav-active-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-active" type="button" role="tab" aria-controls="nav-contact"
                                 aria-selected="false"><span class="table-menu">Active Alerts</span></button>
-                            <button class="nav-link tab-btn" id="nav-contact-tab" data-bs-toggle="tab"
-                                data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact"
-                                aria-selected="false"><span class="table-menu">Alerts</span></button>
 
                             <!-- <button class="nav-link" id="nav-disabled-tab" data-bs-toggle="tab" data-bs-target="#nav-disabled" type="button" role="tab" aria-controls="nav-disabled" aria-selected="false" disabled>Disabled</button> -->
                         </div>
@@ -311,25 +342,28 @@
                             <!-- <div id="eventTableContainer"></div> -->
                             select a marker to view the data
                         </div>
-                        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab"
-                            tabindex="0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Node Name</th>
-                                        <th>Start Time</th>
-                                        <th>Alert Time</th>
-                                        <th>Type</th>
-                                        <th>Alerts Raised</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="alertList"></tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
-                
+
             </div>
+        </div>
+        <div class="d-none" id="alerts-side-table">
+            <div class="d-flex justify-content-between mt-2 mb-2 px-4">
+                <h3 class="alert-title">Alerts</h3>
+                <button id="close-btn" type="button" class="btn-close ms-auto" aria-label="Close"></button>
+            </div>
+            <table class="table table-striped alerts-table">
+                <thead>
+                    <tr>
+                        <th>Node Name</th>
+                        <th>Start Time</th>
+                        <th>Alert Time</th>
+                        <th>Type</th>
+                        <th>Alerts Raised</th>
+                    </tr>
+                </thead>
+                <tbody id="alertList"></tbody>
+            </table>
         </div>
 
     </div>
@@ -428,6 +462,56 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
+        fetchAlerts();
+        const alertButton = document.getElementById('alert-btn');
+        const mapContent = document.getElementById('map-view');
+        const alertTable = document.getElementById('alerts-side-table');
+        const closeBtn = document.getElementById('close-btn');
+        const tableContent = document.getElementById('table-content');
+        const dashboard = document.getElementById('dashboard');
+        const badgeText = document.getElementById('badge-text');
+
+        const scrollContainers = document.querySelectorAll('.tab-pane');
+
+        // Add a wheel event listener to each scroll container
+        scrollContainers.forEach(container => {
+            container.addEventListener('wheel', function(event) {
+                // Check if the container is scrollable in the direction of the scroll
+                if (event.deltaY > 0 && container.scrollHeight > container.clientHeight) {
+                    // Scroll the container and prevent the default action
+                    container.scrollTop += event.deltaY;
+                    event.preventDefault();
+                } else if (event.deltaY < 0 && container.scrollTop > 0) {
+                    // Scroll the container and prevent the default action
+                    container.scrollTop += event.deltaY;
+                    event.preventDefault();
+                }
+            });
+        });
+
+        scrollContainers.forEach(container => {
+            container.addEventListener('wheel', function(event) {
+                event.stopPropagation();
+            }, { capture: true });
+        });
+
+        alertButton.onclick = () => {
+            mapContent.style.width = '60%';
+            tableContent.style.width = '40%';
+            dashboard.style.width = '95%';
+            dashboard.style.right = '2%';
+            alertTable.classList.remove('d-none');
+        };
+
+        closeBtn.onclick = () =>{
+            // alert("close clicked");
+            mapContent.style.width = '100%';
+            tableContent.style.width = '33%';
+            dashboard.style.width = '90%';
+            dashboard.style.right = '5%';
+            alertTable.classList.add('d-none');
+        }
+
         var map = L.map('map').setView([12.988851760695342, 77.59352385460303], 14);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -445,6 +529,7 @@
             m.bindPopup(p);
             m.on('click', function () {
                 fetchEvents(e.id);
+
             });
         });
 
@@ -559,6 +644,8 @@
                 .then(data => {
                     var alertList = document.getElementById('alertList');
                     alertList.innerHTML = '';
+                    badgeText.innerText = data.length;
+                    badgeText.classList.remove('visually-hidden')
                     data.forEach(alert => {
                         updateAlertsList(alert);
                     });
