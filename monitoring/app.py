@@ -1,4 +1,4 @@
-from flask import Flask,render_template, jsonify
+from flask import Flask,render_template, jsonify, request
 from pymongo import MongoClient, DESCENDING
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,7 +7,7 @@ from bson import ObjectId
 import os, json
 # from database.models import Alert
 from datetime import datetime, timedelta
-
+import plotly.graph_objs as go
 
 
 load_dotenv()
@@ -48,6 +48,10 @@ def home():
         })
 
     return render_template('home.html', result=results)
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('dashboard.html')
 
 
 @app.route('/alerts')
@@ -92,6 +96,64 @@ def get_data():
     return jsonify(data)
 
 
+@app.route('/graph/node', methods=['GET'])
+def get_graph():
+    node_id = request.args.get('node_id')
+    type = request.args.get('type')
+
+    timestamps = []
+    count = []
+    print(node_id, type)
+    if type == "People Count":
+        collection = db["instances"]
+        data = collection.find({'node_id': int(node_id)})
+        print("Docs Count" )
+
+        for document in data:
+            timestamps.append(document['time_stamp'])
+            count.append(document['people_count'])
+
+    elif type == "Vehicle Count":
+        collection = db["instances"]
+        data = collection.find({'node_id': int(node_id)})
+        print("Docs Count" )
+
+        for document in data:
+            timestamps.append(document['time_stamp'])
+            count.append(document['vehicle_count'])
+
+    elif type == "Parked Vechicle Count":
+        print("here....")
+        collection = db["instances"]
+        data = collection.find({'node_id': int(node_id)})
+        print("Docs Count" )
+        for document in data:
+            timestamps.append(document['time_stamp'])
+            count.append(document['parked_vehicle_count'])
+
+
+    print(timestamps, count)
+    if timestamps and count:
+        sorted_data = sorted(zip(timestamps, count))
+        sorted_timestamps, sorted_count = zip(*sorted_data)
+    return jsonify({'timestamps': sorted_timestamps, 'count': sorted_count})
+
+@app.route('/graph', methods=['GET'])
+def visualize():
+    result = node_collection.find({})
+    results = []
+    for i in result:
+        results.append({
+            'id': i['id'],
+            'name': i['name'],
+            'address': i['address'],
+        })
+
+    types = ["Parked Vechicle Count", "Vehicle Count", "People Count"]
+
+    return render_template('visualize.html', results=results, types=types)
+
+
 @app.route('/node/<int:node_id>')
 def get_node_data(node_id):
     latest_vehicle = vehicle_collection.find_one({"node_id": node_id}, sort=[("time_stamp", DESCENDING)])
@@ -106,6 +168,7 @@ def get_node_data(node_id):
         latest_vehicle.update({
             "node_name": node_collection.find_one({"id": node_id})['name']
         })
+    
     return jsonify(latest_vehicle)
 
 
@@ -125,9 +188,6 @@ def get_instances(node_id):
     result = instance_collection.find({"node_id": node_id}, sort=[("time_stamp", DESCENDING)])
     result = list(result)
     result = [{**instance, '_id': str(instance['_id'])} for instance in result]
-
-
-
     return jsonify(result)
 
 
@@ -142,10 +202,10 @@ def create_or_update_alert(event_id, node_id, start_time):
 
 
 def check_events_for_alerts():
-  
+    return 
     events = event_collection.find({"end_time": None})
 
-    for event in events:
+    for event in events[:20]:
         start_time = event['start_time']
         current_time = datetime.now()
         

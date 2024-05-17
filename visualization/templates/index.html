@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic Data Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Traffic Data Visualization</h1>
+  
+        <label for="node_id">Select Node:</label>
+        <select name="node_id" id="node_id">
+            {% for node in results %}
+                <option value="{{ node.id }}">{{ node.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="type">Select Data Type:</label>
+        <select name="type" id="type">
+            {% for data_type in types %}
+                <option value="{{ data_type }}">{{ data_type }}</option>
+            {% endfor %}
+        </select>
+        <button id="generate-chart">Generate Chart</button>
+
+    <div id="chart-container"></div>
+
+    <script>
+        function generateChart(nodeId, dataType) {
+            fetch(`/get_data?node_id=${nodeId}&type=${dataType}`)
+                .then(response => response.json())
+                .then(data => {
+                    const timestamps = data.timestamps;
+                    const count = data.count;
+
+                    const chartData = [{
+                        x: timestamps,
+                        y: count,
+                        mode: 'lines+markers',
+                        marker: {
+                            size: 6
+                        }
+                    }];
+
+                    const chartLayout = {
+                        title: `${dataType} Over Time for Node ${nodeId}`,
+                        xaxis: { title: 'Time Stamp' },
+                        yaxis: { title: dataType },
+                        xaxis: { autotick: false, tickangle: 45 }
+                    };
+
+                    Plotly.newPlot('chart-container', chartData, chartLayout);
+                });
+        }
+
+        document.getElementById('generate-chart').addEventListener('click', function() {
+            const nodeId = document.getElementById('node_id').value;
+            const dataType = document.getElementById('type').value;
+            generateChart(nodeId, dataType);
+        });
+    </script>
+</body>
+</html>
