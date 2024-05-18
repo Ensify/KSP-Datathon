@@ -284,6 +284,15 @@ def get_all_reports():
     # return jsonify(reports)
     return render_template('comments.html', reports = reports)
 
+@app.route("/predict")
+def predict():
+    # reports = report_collection.find({})
+    # reports = list(reports)
+    # reports = [{**report, '_id': str(report['_id'])} for report in reports]
+    # return jsonify(reports)
+    return render_template('predict.html')
+
+
 # @app.route("/comments")
 # def comments():
 #     return render_template('comments.html')
