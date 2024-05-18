@@ -1,0 +1,8 @@
+streamlit
+numpy
+pandas
+torch_geometric
+torch-geometric-temporal
+opencv-python
+ultralytics
+pillow
