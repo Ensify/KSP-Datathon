@@ -160,9 +160,9 @@
             border-bottom: 2px solid #00ADB5;
         }
 
-        #nav-contact,
+        #nav-home,
         #nav-profile,
-        #nav-home {
+        #nav-active {
             height: 300px;
             overflow-y: scroll;
         }
@@ -171,7 +171,7 @@
             font-size: 0.7rem;
         }
 
-        #nav-contact::-webkit-scrollbar-track {
+        /* #nav-active::-webkit-scrollbar-track {
             -webkit-box-shadow: inset 0 0 6px rgba(0, 173, 181, 0.3);
             border-radius: 10px;
             background-color: #F5F5F5;
@@ -189,7 +189,7 @@
             background-color: #F5F5F5;
         }
 
-        #nav-contact::-webkit-scrollbar {
+        #nav-active::-webkit-scrollbar {
             width: 10px;
             background-color: #F5F5F5;
         }
@@ -204,7 +204,7 @@
             background-color: #F5F5F5;
         }
 
-        #nav-contact::-webkit-scrollbar-thumb {
+        #nav-active::-webkit-scrollbar-thumb {
             border-radius: 10px;
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
             background-color: #00ADB5;
@@ -220,7 +220,7 @@
             border-radius: 10px;
             -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
             background-color: #00ADB5;
-        }
+        } */
 
         .w-95 {
             width: 95%;
@@ -238,10 +238,12 @@
             height : 100vh;
             overflow: scroll;
             width : 40%;
+            background-color: #222831;
+            color : white !important
         }
 
         .alerts-table{
-            width : 35%;
+            width : 100%;
             margin : 0 auto;
         }
 
@@ -298,19 +300,25 @@
         </nav> -->
         <nav class="d-flex flex-column navigation">
             <div class="menu mt-5 mb-3 active-menu px-2">
-                <a class="text-center" aria-current="page" href="#">
+                <a class="text-center" aria-current="page" href="/">
                     <img src="{{url_for('static', filename='images/home.png')}}" alt="" class="menu-img"><br>
                     <span class="nav-texts">Home</span>
                 </a>
             </div>
             <div class="menu mb-3 px-2">
-                <a class="text-center" aria-current="page" href="#">
+                <a class="text-center" aria-current="page" href="/graph">
                     <img src="{{url_for('static', filename='images/visual.png')}}" alt="" class="menu-img"><br>
                     <span class="nav-texts">Visualize</span>
                 </a>
             </div>
             <div class="menu mb-3 px-2">
                 <a class="text-center" aria-current="page" href="#">
+                    <img src="{{url_for('static', filename='images/prediction.png')}}" alt="" class="menu-img"><br>
+                    <span class="nav-texts">Predict</span>
+                </a>
+            </div>
+            <div class="menu mb-3 px-2">
+                <a class="text-center" aria-current="page" href="/comments.html">
                     <img src="{{url_for('static', filename='images/message.png')}}" alt="" class="menu-img"><br>
                     <span class="nav-texts">Comments</span>
                 </a>
@@ -373,17 +381,13 @@
                         </div>
                         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"
                             tabindex="0">
-                            <!-- <div id="eventTableContainer"></div> -->
-                            select a marker to view the data
-
+                            Select a marker to view data
                         </div>
                         <div class="tab-pane fade" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab"
                             tabindex="0">
                             <!-- <div id="eventTableContainer"></div> -->
                             select a marker to view the data
-                            
                         </div>
-
                     </div>
 
                 </div>
@@ -391,13 +395,14 @@
             </div>
         </div>
         <div class="d-none" id="alerts-side-table">
-            <div class="d-flex justify-content-between mt-2 mb-2 px-4">
-                <h3 class="alert-title">Alerts</h3>
-                <a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv('alerts-table');">Download</a>
-
-                <button id="close-btn" type="button" class="btn-close ms-auto" aria-label="Close"></button>
+            <div class="d-flex justify-content-end pe-2 pt-2 pb-2" data-bs-theme="dark">
+                <button id="close-btn" type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <table id="alerts-table" class="table table-striped alerts-table">
+            <div class="d-flex justify-content-between align-items mt-2 mb-2 px-4">
+                <h3 class="alert-title">Alerts</h3>
+                <button href="#" class="btn btn-primary ms-auto btn-sm"  onclick="download_table_as_csv('alerts-table');">Download</button>
+            </div>
+            <table id="alerts-table" class="table table-striped alerts-table mt-3">
                 <thead>
                     <tr>
                         <th>Node Name</th>
@@ -586,7 +591,7 @@
             fetch(`/events/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
-                    var eventsHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'events-table\');">Download</a>'
+                    var eventsHtml ='<button class="btn btn-primary ms-auto mt-2 mb-2 btn-sm"  onclick="download_table_as_csv(\'events-table\');">Download</button>'
 
                     eventsHtml += '<table id="events-table" class="table table-striped">';
                     eventsHtml += '<thead><tr><th>Type</th><th>Start Time</th><th>End Time</th><th>Alerts</th></tr></thead>';
@@ -604,7 +609,7 @@
             fetch(`/instances/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
-                    var instanceHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'instances-table\');">Download</a>'
+                    var instanceHtml ='<button class="btn btn-primary ms-auto mt-2 mb-2 btn-sm"  onclick="download_table_as_csv(\'instances-table\');">Download</button>'
 
                     instanceHtml += '<table id="instances-table" class="table table-striped">';
                     instanceHtml += '<thead><tr><th>Time Stamp</th><th>Vechicle Count</th><th>Pot Hole Count</th><th>Parked Vehicle Count</th><th>People Count</th></tr></thead>';
@@ -642,7 +647,7 @@
                 .then(response => response.json())
                 .then(data => {
 
-                    var activeAlertsHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'active-table\');">Download</a>'
+                    var activeAlertsHtml ='<button class="btn btn-primary ms-auto mt-2 mb-2 btn-sm"  onclick="download_table_as_csv(\'active-table\');">Download</button>'
                     activeAlertsHtml += '<table id="active-table" class="table table-striped">';
                     activeAlertsHtml += '<thead><tr><th>Start Time Stamp</th><th>Vechicle</th><th>Total Alerts</th></tr></thead>';
                     activeAlertsHtml += '<tbody>';

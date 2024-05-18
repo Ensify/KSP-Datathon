@@ -276,12 +276,17 @@ def get_user_report():
     return "Success"
 
 
-@app.route("/report/all", methods=["GET"])
+@app.route("/report/all")
 def get_all_reports():
     reports = report_collection.find({})
     reports = list(reports)
     reports = [{**report, '_id': str(report['_id'])} for report in reports]
-    return jsonify(reports)
+    # return jsonify(reports)
+    return render_template('comments.html', reports = reports)
+
+# @app.route("/comments")
+# def comments():
+#     return render_template('comments.html')
 
 
 
