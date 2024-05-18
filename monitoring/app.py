@@ -276,6 +276,15 @@ def get_user_report():
     return "Success"
 
 
+@app.route("/report/all", methods=["GET"])
+def get_all_reports():
+    reports = report_collection.find({})
+    reports = list(reports)
+    reports = [{**report, '_id': str(report['_id'])} for report in reports]
+    return jsonify(reports)
+
+
+
 scheduler.add_job(check_events_for_alerts, 'interval', minutes=6)
 scheduler.start()
 
