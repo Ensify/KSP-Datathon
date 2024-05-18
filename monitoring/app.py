@@ -276,7 +276,7 @@ def get_user_report():
     return "Success"
 
 
-@app.route("/report/all")
+@app.route("/comments")
 def get_all_reports():
     reports = report_collection.find({})
     reports = list(reports)
