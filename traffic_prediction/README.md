@@ -4,7 +4,7 @@
 
 This is a modified implementation of the Spatial Temporal Graph Convolutional Network propsed in the paper [Spatio-Temporal Graph Convolutional Networks: A Deep Learning Framework for Traffic Forecasting](https://arxiv.org/pdf/1709.04875)
 
-The model is trained to synthetic traffical data.The road network is represented as a graph with every point with cctv as a node. The model can predict traffic after 30 mins into the future given current traffic patterns.
+The model is trained with synthetic traffical data.The road network is represented as a graph with every point with cctv as a node. The model can predict traffic after 30 mins into the future given current traffic patterns.
 
 ## Features
 - Considers seasonal traffic
