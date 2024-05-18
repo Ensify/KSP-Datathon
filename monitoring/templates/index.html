@@ -227,7 +227,7 @@
         }
 
         .active-menu {
-            border-left: 2px solid #00ADB5;
+            border-left: 3px solid #00ADB5;
         }
 
         .nav-item {
@@ -248,34 +248,72 @@
         .alert-title{
             color : #00ADB5;
         }
+
+        .menu{
+            width: 100%;
+            display : flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap : 3;
+        }
+
+        a{
+            text-decoration: none;
+            color : white;
+        }
+
+        nav.navigation{
+            background-color: #393E46;
+        }
     </style>
 </head>
 
 <body>
     <div class="d-flex">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary d-flex align-items-start justify-content-center">
+        <!-- <nav class="navbar navbar-expand-lg bg-body-tertiary d-flex align-items-start justify-content-center">
             <div class="collapse navbar-collapse d-flex flex-column justify-content-center align-items-center mt-2"
                 id="navbarNav">
-                <ul class="navbar-nav d-flex flex-column align-items-center gap-4">
-                    <li class="nav-item text-center">
-                        <a class="nav-link" aria-current="page" href="#">
+                <div class="navbar-nav d-flex flex-column align-items-center gap-4">
+                    <div class="nav-item text-center">
+                        <a class="nav-link active-menu" aria-current="page" href="#">
                             <img src="{{url_for('static', filename='images/home.png')}}" alt="" class="menu-img"><br>
                             <span class="nav-texts">Home</span>
                         </a>
-                    </li>
-                    <li class="nav-item text-center">
+                    </div>
+                    <div class="nav-item text-center">
                         <a class="nav-link" aria-current="page" href="#">
-                            <img src="{{url_for('static', filename='images/alerts.png')}}" alt="" class="menu-img"><br>
-                            <span class="nav-texts">Alerts</span>
+                            <img src="{{url_for('static', filename='images/visual.png')}}" alt="" class="menu-img"><br>
+                            <span class="nav-texts">Visualize</span>
                         </a>
-                    </li>
-                    <li class="nav-item text-center">
+                    </div>
+                    <div class="nav-item text-center">
                         <a class="nav-link active-menu" aria-current="page" href="#">
-                            <img src="{{url_for('static', filename='images/map.png')}}" alt="" class="menu-img"><br>
-                            <span class="nav-texts">Map</span>
+                            <img src="{{url_for('static', filename='images/message.png')}}" alt="" class="menu-img"><br>
+                            <span class="nav-texts">Comments</span>
                         </a>
-                    </li>
-                </ul>
+                    </div>
+                </div>
+            </div>
+        </nav> -->
+        <nav class="d-flex flex-column navigation">
+            <div class="menu mt-5 mb-3 active-menu px-2">
+                <a class="text-center" aria-current="page" href="#">
+                    <img src="{{url_for('static', filename='images/home.png')}}" alt="" class="menu-img"><br>
+                    <span class="nav-texts">Home</span>
+                </a>
+            </div>
+            <div class="menu mb-3 px-2">
+                <a class="text-center" aria-current="page" href="#">
+                    <img src="{{url_for('static', filename='images/visual.png')}}" alt="" class="menu-img"><br>
+                    <span class="nav-texts">Visualize</span>
+                </a>
+            </div>
+            <div class="menu mb-3 px-2">
+                <a class="text-center" aria-current="page" href="#">
+                    <img src="{{url_for('static', filename='images/message.png')}}" alt="" class="menu-img"><br>
+                    <span class="nav-texts">Comments</span>
+                </a>
             </div>
         </nav>
         <div class="map-view" id="map-view">
