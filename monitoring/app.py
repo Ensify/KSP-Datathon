@@ -12,6 +12,7 @@ import requests
 
 load_dotenv()
 client = MongoClient(os.environ.get('MONGO_URI'))
+
 scheduler = BackgroundScheduler()
 
 db = client['ksp-traffic']
@@ -290,7 +291,8 @@ def predict():
     # reports = list(reports)
     # reports = [{**report, '_id': str(report['_id'])} for report in reports]
     # return jsonify(reports)
-    return render_template('predict.html')
+    model_url = os.environ.get('MODEL_URL')
+    return render_template('predict.html', model_url=model_url)
 
 
 # @app.route("/comments")
