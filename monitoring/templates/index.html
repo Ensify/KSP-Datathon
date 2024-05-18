@@ -369,18 +369,23 @@
                             aria-labelledby="nav-home-tab" tabindex="0">
                             <!-- <div id="instanceTableContainer" class="overflow-scroll"></div> -->
                             select a marker to view the data
+
                         </div>
                         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"
                             tabindex="0">
                             <!-- <div id="eventTableContainer"></div> -->
                             select a marker to view the data
+
                         </div>
                         <div class="tab-pane fade" id="nav-active" role="tabpanel" aria-labelledby="nav-active-tab"
                             tabindex="0">
                             <!-- <div id="eventTableContainer"></div> -->
                             select a marker to view the data
+                            
                         </div>
+
                     </div>
+
                 </div>
 
             </div>
@@ -388,9 +393,11 @@
         <div class="d-none" id="alerts-side-table">
             <div class="d-flex justify-content-between mt-2 mb-2 px-4">
                 <h3 class="alert-title">Alerts</h3>
+                <a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv('alerts-table');">Download</a>
+
                 <button id="close-btn" type="button" class="btn-close ms-auto" aria-label="Close"></button>
             </div>
-            <table class="table table-striped alerts-table">
+            <table id="alerts-table" class="table table-striped alerts-table">
                 <thead>
                     <tr>
                         <th>Node Name</th>
@@ -579,8 +586,9 @@
             fetch(`/events/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
+                    var eventsHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'events-table\');">Download</a>'
 
-                    var eventsHtml = '<table class="table table-striped">';
+                    eventsHtml += '<table id="events-table" class="table table-striped">';
                     eventsHtml += '<thead><tr><th>Type</th><th>Start Time</th><th>End Time</th><th>Alerts</th></tr></thead>';
                     eventsHtml += '<tbody>';
                     data.forEach(event => {
@@ -596,14 +604,16 @@
             fetch(`/instances/${nodeId}`)
                 .then(response => response.json())
                 .then(data => {
+                    var instanceHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'instances-table\');">Download</a>'
 
-                    var instanceHtml = '<table class="table table-striped">';
+                    instanceHtml += '<table id="instances-table" class="table table-striped">';
                     instanceHtml += '<thead><tr><th>Time Stamp</th><th>Vechicle Count</th><th>Pot Hole Count</th><th>Parked Vehicle Count</th><th>People Count</th></tr></thead>';
                     instanceHtml += '<tbody>';
                     data.forEach(instance => {
                         instanceHtml += `<tr><td>${instance.time_stamp}</td><td>${instance.vehicle_count}</td><td>${instance.pot_hole_count}</td><td>${instance.parked_vehicle_count || ''}</td><td>${instance.people_count}</td></tr>`;
                     });
                     instanceHtml += '</tbody></table>';
+
                     document.getElementById('nav-home').innerHTML = instanceHtml;
                 })
                 .catch(error => console.error('Error fetching Instances:', error));
@@ -632,13 +642,15 @@
                 .then(response => response.json())
                 .then(data => {
 
-                    var activeAlertsHtml = '<table class="table table-striped">';
+                    var activeAlertsHtml ='<a href="#" class="btn btn-dark ms-auto"  onclick="download_table_as_csv(\'active-table\');">Download</a>'
+                    activeAlertsHtml += '<table id="active-table" class="table table-striped">';
                     activeAlertsHtml += '<thead><tr><th>Start Time Stamp</th><th>Vechicle</th><th>Total Alerts</th></tr></thead>';
                     activeAlertsHtml += '<tbody>';
                     data.forEach(alert => {
                         activeAlertsHtml += `<tr><td>${alert.start_time}</td><td>${alert.type}</td><td>${alert.alerts_raised}</td></tr>`;
                     });
                     activeAlertsHtml += '</tbody></table>';
+
                     document.getElementById('nav-active').innerHTML = activeAlertsHtml;
                 })
                 .catch(error => console.error('Error fetching alerts:', error));
@@ -662,8 +674,6 @@
         }
 
         fetchDataAndUpdate();
-
-
 
         function updateAlertsList(alert) {
             var alertList = document.getElementById('alertList');
@@ -690,6 +700,33 @@
                 })
                 .catch(error => console.error('Error fetching alerts:', error));
         }
+
+        function download_table_as_csv(table_id, separator = ',') {
+    
+                var rows = document.querySelectorAll('table#' + table_id + ' tr');
+            
+                var csv = [];
+                for (var i = 0; i < rows.length; i++) {
+                    var row = [], cols = rows[i].querySelectorAll('td, th');
+                    for (var j = 0; j < cols.length; j++) {
+                        var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                        data = data.replace(/"/g, '""');
+                        row.push('"' + data + '"');
+                    }
+                    csv.push(row.join(separator));
+                }
+                var csv_string = csv.join('\n');
+               
+                var filename = 'export_' + table_id + '_' + new Date().toLocaleDateString() + '.csv';
+                var link = document.createElement('a');
+                link.style.display = 'none';
+                link.setAttribute('target', '_blank');
+                link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
 
         fetchAlerts();
         setInterval(fetchAlerts, 300000); 
