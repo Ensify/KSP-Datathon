@@ -44,10 +44,10 @@
 The site is currently up on render. Can be accessed using the links below. Kindly note that since render.com's free service is used there is approximately 2-3 minutes loading time initially.
 
 1. Website:
-        `https://codeone-ksp-traffic-monitoring-site.onrender.com/report`
+        `https://codeone-ksp-traffic-monitoring-site.onrender.com`
 
 2. ML Model testing:
-        `https://ksp-models.onrender.com`
+        `https://tinyurl.com/codeone-traffic-flow`
 
 3. Mobile application:
         Headover to releases page by simply linking the below link where you can find the road-report.apk which you can download and can be used to report traffic.
