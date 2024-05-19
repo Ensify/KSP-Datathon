@@ -3,7 +3,7 @@
 
 ## Modules and their description
 1. Database: Consists of db schema and their handlers.
-2. Mobile_app_Flutter: A mobile reporting app for public to report traffic, roadbloack and accidents. Refer [here](mobile_app_flutter\readme.md) for details
+2. Mobile_app_Flutter: A mobile reporting app for public to report traffic, roadblock and accidents. Refer [here](mobile_app_flutter\readme.md) for details
 3. Monitoring: Continuous Monitoring and Alert
         1. Automated Alerting: Backend Python code continuously monitors traffic events, generating alerts if vehicles exceed designated waiting times at nodes.
         2. Real-time Display: JavaScript dynamically updates the frontend, displaying the latest alerts to users, facilitating quick response to traffic disruptions.
@@ -24,7 +24,7 @@
 2. Clone the repository using 
    
    ```
-   git clone 
+   git clone https://github.com/Ensify/KSP-Datathon.git
    ```
 3. Install the requirements
    
